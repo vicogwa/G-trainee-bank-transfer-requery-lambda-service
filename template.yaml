@@ -23,7 +23,7 @@ Parameters:
         Default: /wallet/hmacKey
     BASEURL:
         Type: AWS::SSM::Parameter::Value<String>
-        Default: /wallet/BaseUrl
+        Default: /wallet/devBaseUrl
     TransferRequeryQueueArn:
         Type: AWS::SSM::Parameter::Value<String>
         Default: /wallet/TransferRequeryQueueArn
