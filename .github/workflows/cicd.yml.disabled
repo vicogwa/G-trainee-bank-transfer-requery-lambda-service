@@ -39,4 +39,12 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           sam build
-          sam deploy --stack-name dev-transfer-requery-lambda --region us-east-1 --no-confirm-changeset --capabilities CAPABILITY_IAM
+          # Convert params.json to the parameter-overrides format
+          PARAMETERS=$(cat dev-params.json | jq -r 'to_entries | map("\(.key)=\(.value)") | join(" ")')
+
+          sam deploy --stack-name dev-transfer-requery-lambda \
+                     --region us-east-1 \
+                     --no-confirm-changeset \
+                     --parameter-overrides $PARAMETERS
+          echo "Done"
+         
