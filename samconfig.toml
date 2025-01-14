@@ -18,6 +18,18 @@ capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
 
+[dev.deploy.parameters]
+parameter_overrides = "dev-params.json"
+region = "us-east-1"
+
+[staging.deploy.parameters]
+parameter_overrides = "staging-params.json"
+region = "us-east-1"
+
+[prod.deploy.parameters]
+parameter_overrides = "prod-params.json"
+region = "us-east-2"
+
 [default.package.parameters]
 resolve_s3 = true
 
