@@ -1,4 +1,4 @@
-name: Deploy to AWS Lambda
+name: Deploy Dev to AWS Lambda
 
 on:
   push:
@@ -47,4 +47,3 @@ jobs:
                      --no-confirm-changeset \
                      --parameter-overrides $PARAMETERS
           echo "Done"
-         
