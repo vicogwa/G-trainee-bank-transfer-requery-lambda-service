@@ -1,0 +1,50 @@
+name: Deploy to AWS Lambda
+
+on:
+  push:
+    branches:
+      - prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install esbuild
+        run: npm install -g esbuild
+
+
+      - name: Install SAM CLI
+        run: |
+          curl -L "https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip" -o sam.zip
+          unzip sam.zip -d sam-installation
+          sudo ./sam-installation/install --update
+          sam --version
+          echo "Done"
+      - name: Clean SAM Build Cache
+        run: |
+          rm -rf .aws-sam/build
+
+      - name: Build and Deploy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          sam build
+          # Convert params.json to the parameter-overrides format
+          PARAMETERS=$(cat prod-params.json | jq -r 'to_entries | map("\(.key)=\(.value)") | join(" ")')
+
+          sam deploy --stack-name prod-transfer-requery-lambda \
+                     --region us-east-2 \
+                     --no-confirm-changeset \
+                     --parameter-overrides $PARAMETERS
+          echo "Done"
+         
