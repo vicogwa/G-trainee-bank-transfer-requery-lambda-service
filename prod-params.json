@@ -1,8 +1,8 @@
 {
-  "WalletHmacKey": "/wallet/hmacKey",
-  "BASEURL": "/wallet/devBaseUrl",
-  "TransferRequeryQueueArn": "/wallet/TransferRequeryQueueArn",
-  "TransferRequeryQueueUrl": "/wallet/TransferRequeryQueueUrl",
-  "SubnetId": "/dev/lambda/SubnetId",
-  "SecurityGroupId": "/dev/lambda/SecurityGroupId"
+  "WalletHmacKey": "/prod/wallet/hmacKey",
+  "BASEURL": "/prod/wallet/BaseUrl",
+  "TransferRequeryQueueArn": "/prod/wallet/TransferRequeryQueueArn",
+  "TransferRequeryQueueUrl": "/prod/wallet/TransferRequeryQueueUrl",
+  "SubnetId": "/prod/lambda/SubnetId",
+  "SecurityGroupId": "/prod/lambda/SecurityGroupId"
 }
