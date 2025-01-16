@@ -1,0 +1,8 @@
+{
+  "WalletHmacKey": "/wallet/StaginghmacKey",
+  "BASEURL": "/wallet/stagingBaseUrl",
+  "TransferRequeryQueueArn": "/staging/wallet/TransferRequeryQueueArn",
+  "TransferRequeryQueueUrl": "/staging/wallet/TransferRequeryQueueUrl",
+  "SubnetId": "/staging/lambda/SubnetId",
+  "SecurityGroupId": "/staging/lambda/SecurityGroupId"
+}
