@@ -16,20 +16,22 @@ Globals:
                 BASEURL: !Ref BASEURL
                 TransferRequeryQueueArn: !Ref TransferRequeryQueueArn
                 TransferRequeryQueueUrl: !Ref TransferRequeryQueueUrl
+                SubnetId: !Ref SubnetId
+                SecurityGroupId: !Ref SecurityGroupId
 
 Parameters:
     WalletHmacKey:
         Type: AWS::SSM::Parameter::Value<String>
-        Default: /wallet/hmacKey
     BASEURL:
         Type: AWS::SSM::Parameter::Value<String>
-        Default: /wallet/devBaseUrl
     TransferRequeryQueueArn:
         Type: AWS::SSM::Parameter::Value<String>
-        Default: /wallet/TransferRequeryQueueArn
     TransferRequeryQueueUrl:
         Type: AWS::SSM::Parameter::Value<String>
-        Default: /wallet/TransferRequeryQueueUrl
+    SubnetId:
+        Type: AWS::SSM::Parameter::Value<String>
+    SecurityGroupId:
+        Type: AWS::SSM::Parameter::Value<String>
 
 Resources:
     TransferRequeryFunction:
@@ -46,6 +48,11 @@ Resources:
                     Type: SQS
                     Properties:
                         Queue: !Ref TransferRequeryQueueArn
+            VpcConfig:
+                SecurityGroupIds:
+                  - !Ref SecurityGroupId  
+                SubnetIds:
+                  - !Ref SubnetId
         Metadata:
             BuildMethod: esbuild
             BuildProperties:
@@ -79,6 +86,16 @@ Resources:
                                 - "sqs:GetQueueAttributes"
                                 - "sqs:ReceiveMessage"
                                 - "sqs:DeleteMessage"
+                            Resource: "*"
+                - PolicyName: LambdaVpcPolicy
+                  PolicyDocument:
+                      Version: "2012-10-17"
+                      Statement:
+                          - Effect: Allow
+                            Action:
+                                 - "ec2:CreateNetworkInterface"
+                                 - "ec2:DescribeNetworkInterfaces"
+                                 - "ec2:DeleteNetworkInterface"
                             Resource: "*"
 
 Outputs:
