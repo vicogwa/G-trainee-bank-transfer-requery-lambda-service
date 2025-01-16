@@ -1,0 +1,8 @@
+{
+  "WalletHmacKey": "/wallet/hmacKey",
+  "BASEURL": "/wallet/devBaseUrl",
+  "TransferRequeryQueueArn": "/wallet/TransferRequeryQueueArn",
+  "TransferRequeryQueueUrl": "/wallet/TransferRequeryQueueUrl",
+  "SubnetId": "/dev/lambda/SubnetId",
+  "SecurityGroupId": "/dev/lambda/SecurityGroupId"
+}
