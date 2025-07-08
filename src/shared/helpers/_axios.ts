@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { createHmac } from 'crypto';
 import { IRequestBody } from '../interfaces';
+import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
+
 
 /**
  * Sends a PATCH request to requery a transaction.
