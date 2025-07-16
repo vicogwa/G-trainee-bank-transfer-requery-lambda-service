@@ -19,9 +19,9 @@ confirm_changeset = true
 resolve_s3 = true
 stack_name = "bank-transfar-lambda"
 s3_prefix = "bank-transfar-lambda"
-region = "us-east-2"
+region = "us-east-1"
 disable_rollback = true
-parameter_overrides = "TransferRequeryQueueArn=\"/bank/queues/transferRequeryArn\" TransferRequeryQueueUrl=\"/bank/queues/transferRequeryUrl\" SubnetId=\"/networking/subnet-01\" SecurityGroupId=\"/networking/security-group-01\" SecretArn=\"arn:aws:secretsmanager:us-east-2:230572723571:secret:my-lambda/SM-project-QNttv7\""
+parameter_overrides = "Environment=\"dev\" DevSecretArn=\"arn:aws:secretsmanager:us-east-2:230572723571:secret:dev-banktransfer-config-NF0BMu\" StagingSecretArn=\"arn:aws:secretsmanager:us-east-2:230572723571:secret:staging-banktransfer-config-oFLbDB\" ProdSecretArn=\"arn:aws:secretsmanager:us-east-2:230572723571:secret:prod-banktransfer-config-pxbc6d\""
 image_repositories = []
 
 [dev.deploy.parameters]
