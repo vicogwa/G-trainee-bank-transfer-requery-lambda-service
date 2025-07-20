@@ -1,8 +1,22 @@
-{
-  "WalletHmacKey": "/wallet/hmacKey",
-  "BASEURL": "/wallet/devBaseUrl",
-  "TransferRequeryQueueArn": "/wallet/TransferRequeryQueueArn",
-  "TransferRequeryQueueUrl": "/wallet/TransferRequeryQueueUrl",
-  "SubnetId": "/dev/lambda/SubnetId",
-  "SecurityGroupId": "/dev/lambda/SecurityGroupId"
-}
+[
+  {
+    "ParameterKey": "Environment",
+    "ParameterValue": "dev"
+  },
+  {
+    "ParameterKey": "SecretArn",
+    "ParameterValue": "arn:aws:secretsmanager:us-east-2:230572723571:secret:banktransfer/dev/secret"
+  },
+  {
+    "ParameterKey": "SecurityGroupId",
+    "ParameterValue": "sg-056bb8daadd66a703"
+  },
+  {
+    "ParameterKey": "SubnetId",
+    "ParameterValue": "subnet-0f432fdc62fcde416"
+  },
+  {
+    "ParameterKey": "SqsQueueArn",
+    "ParameterValue": "arn:aws:sqs:us-east-2:230572723571:staging-transfer-queue"
+  }
+]

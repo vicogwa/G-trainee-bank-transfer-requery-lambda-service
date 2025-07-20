@@ -1,7 +1,7 @@
 import { SQSHandler, SQSEvent } from 'aws-lambda';
 import AWS from 'aws-sdk';
 import { RequeryService } from '../services';
-
+import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
 // Initialize the SQS service
 const sqs = new AWS.SQS();
 

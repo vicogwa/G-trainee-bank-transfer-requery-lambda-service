@@ -1,8 +1,4 @@
 {
-  "WalletHmacKey": "/wallet/StaginghmacKey",
-  "BASEURL": "/wallet/stagingBaseUrl",
-  "TransferRequeryQueueArn": "/staging/wallet/TransferRequeryQueueArn",
-  "TransferRequeryQueueUrl": "/staging/wallet/TransferRequeryQueueUrl",
-  "SubnetId": "/staging/lambda/SubnetId",
-  "SecurityGroupId": "/staging/lambda/SecurityGroupId"
+ "Environment": "staging",
+  "SecretArn": "arn:aws:secretsmanager:us-east-1:123456789012:secret:banktransfer/staging/secret"
 }

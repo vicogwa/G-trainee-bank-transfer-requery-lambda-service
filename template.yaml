@@ -2,64 +2,37 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   banktransfer-lambda-service
-  Fully migrated to use AWS Secrets Manager (no Parameter Store dependency)
+  Fully refactored to use AWS Secrets Manager for all environment config
 
 Globals:
   Function:
-    Timeout: 30
+    Timeout: 5
     Tracing: Active
     LoggingConfig:
       LogFormat: JSON
-    Environment:
-      Variables:
-        NODE_ENV: production
-        AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
 
 Parameters:
   Environment:
     Type: String
-    Default: dev
     AllowedValues:
       - dev
       - staging
       - prod
-    Description: Deployment environment (dev, staging, or prod)
-
-  DevSecretArn:
+    Description: Deployment environment
+  SecretArn:
     Type: String
-    Description: ARN of the AWS Secrets Manager secret for the dev environment
-
-  StagingSecretArn:
-    Type: String
-    Description: ARN of the AWS Secrets Manager secret for the staging environment
-
-  ProdSecretArn:
-    Type: String
-    Description: ARN of the AWS Secrets Manager secret for the prod environment
-
-  TransferRequeryQueueArn:
-    Type: String
-    Description: ARN of the SQS queue for transfer requery
-
+    Description: ARN of the environment-specific Secrets Manager secret
   SecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: Security Group ID for Lambda VPC config
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subnet ID for Lambda VPC config
+  SqsQueueArn:
     Type: String
-    Description: Security Group ID for Lambda VPC
-
-  SubnetIds:
-    Type: CommaDelimitedList
-    Description: Comma separated list of Subnet IDs for Lambda VPC
-
-Mappings:
-  EnvToSecretArn:
-    dev:
-      SecretArn: !Ref DevSecretArn
-    staging:
-      SecretArn: !Ref StagingSecretArn
-    prod:
-      SecretArn: !Ref ProdSecretArn
+    Description: ARN of an SQS queue for deployment-time validation
 
 Resources:
-  # Lambda function
   TransferRequeryFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -67,33 +40,22 @@ Resources:
       Handler: functions/transferRequery.handler
       Runtime: nodejs18.x
       Role: !GetAtt TransferRequeryFunctionRole.Arn
+      Architectures:
+        - x86_64
       Events:
         SQSEvent:
           Type: SQS
           Properties:
-            Queue: !Ref TransferRequeryQueueArn
-            BatchSize: 10
-            MaximumBatchingWindowInSeconds: 5
+            Queue: !Ref SqsQueueArn
+      Environment:
+        Variables:
+          SECRET_ID: !Ref SecretArn
+          ENVIRONMENT: !Ref Environment
       VpcConfig:
         SecurityGroupIds:
           - !Ref SecurityGroupId
-        SubnetIds: !Ref SubnetIds
-      Environment:
-        Variables:
-          # General environment
-          ENVIRONMENT: !Ref Environment
-          SECRET_ARN: !FindInMap [EnvToSecretArn, !Ref Environment, SecretArn]
-
-          # Reference values inside the Secrets Manager JSON
-          WALLET_HMAC_KEY: !Sub "{{resolve:secretsmanager:${SECRET_ARN}:SecretString:WalletHmacKey}}"
-          BASE_URL: !Sub "{{resolve:secretsmanager:${SECRET_ARN}:SecretString:BASEURL}}"
-          TRANSFER_REQUERY_QUEUE_ARN: !Sub "{{resolve:secretsmanager:${SECRET_ARN}:SecretString:TransferRequeryQueueArn}}"
-          TRANSFER_REQUERY_QUEUE_URL: !Sub "{{resolve:secretsmanager:${SECRET_ARN}:SecretString:TransferRequeryQueueUrl}}"
-          SUBNET_ID: !Sub "{{resolve:secretsmanager:${SECRET_ARN}:SecretString:SubnetId}}"
-          SECURITY_GROUP_ID: !Sub "{{resolve:secretsmanager:${SECRET_ARN}:SecretString:SecurityGroupId}}"
-      DeadLetterQueue:
-        Type: SQS
-        TargetArn: !GetAtt TransferRequeryDeadLetterQueue.Arn
+        SubnetIds:
+          - !Ref SubnetId
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -103,19 +65,9 @@ Resources:
         EntryPoints:
           - functions/transferRequery.ts
 
-  # Dead Letter Queue
-  TransferRequeryDeadLetterQueue:
-    Type: AWS::SQS::Queue
-    Properties:
-      QueueName: !Sub "${AWS::StackName}-transfer-requery-dlq-${Environment}"
-      MessageRetentionPeriod: 1209600 # 14 days
-      KmsMasterKeyId: alias/aws/sqs
-
-  # IAM Role for Lambda
   TransferRequeryFunctionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "${AWS::StackName}-transfer-requery-role-${Environment}"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -123,9 +75,6 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
             Action: "sts:AssumeRole"
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
-        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
       Policies:
         - PolicyName: LambdaBasicExecutionPolicy
           PolicyDocument:
@@ -136,6 +85,20 @@ Resources:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
+                  - sqs:SendMessage
+                  - sqs:GetQueueAttributes
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                Resource: "*"
+        - PolicyName: LambdaVpcPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:CreateNetworkInterface
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DeleteNetworkInterface
                 Resource: "*"
         - PolicyName: SecretsManagerAccessPolicy
           PolicyDocument:
@@ -144,28 +107,12 @@ Resources:
               - Effect: Allow
                 Action:
                   - secretsmanager:GetSecretValue
-                Resource: !FindInMap [EnvToSecretArn, !Ref Environment, SecretArn]
-        - PolicyName: SQSAccessPolicy
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - sqs:SendMessage
-                  - sqs:GetQueueAttributes
-                  - sqs:ReceiveMessage
-                  - sqs:DeleteMessage
-                Resource: "*"
+                Resource: !Ref SecretArn
 
 Outputs:
   TransferRequeryFunction:
-    Description: Lambda function ARN
+    Description: TransferRequery Service
     Value: !GetAtt TransferRequeryFunction.Arn
-    Export:
-      Name: !Sub "${AWS::StackName}-transfer-requery-function-arn-${Environment}"
-
-  SelectedSecretArnOutput:
-    Description: Selected secret ARN for environment
-    Value: !FindInMap [EnvToSecretArn, !Ref Environment, SecretArn]
-    Export:
-      Name: !Sub "${AWS::StackName}-selected-secret-arn-${Environment}"
+  TransferRequeryFunctionRole:
+    Description: IAM Role for the TransferRequery function
+    Value: !GetAtt TransferRequeryFunctionRole.Arn

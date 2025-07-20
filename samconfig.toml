@@ -1,5 +1,3 @@
-# More information about the configuration file can be found here:
-# https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-config.html
 version = 0.1
 
 [default]
@@ -13,29 +11,6 @@ parallel = true
 [default.validate.parameters]
 lint = true
 
-[default.deploy.parameters]
-capabilities = "CAPABILITY_IAM"
-confirm_changeset = true
-resolve_s3 = true
-stack_name = "bank-transfar-lambda"
-s3_prefix = "bank-transfar-lambda"
-region = "us-east-1"
-disable_rollback = true
-parameter_overrides = "Environment=\"dev\" DevSecretArn=\"arn:aws:secretsmanager:us-east-2:230572723571:secret:dev-banktransfer-config-NF0BMu\" StagingSecretArn=\"arn:aws:secretsmanager:us-east-2:230572723571:secret:staging-banktransfer-config-oFLbDB\" ProdSecretArn=\"arn:aws:secretsmanager:us-east-2:230572723571:secret:prod-banktransfer-config-pxbc6d\""
-image_repositories = []
-
-[dev.deploy.parameters]
-parameter_overrides = "dev-params.json"
-region = "us-east-1"
-
-[staging.deploy.parameters]
-parameter_overrides = "staging-params.json"
-region = "us-east-1"
-
-[prod.deploy.parameters]
-parameter_overrides = "prod-params.json"
-region = "us-east-2"
-
 [default.package.parameters]
 resolve_s3 = true
 
@@ -47,3 +22,44 @@ warm_containers = "EAGER"
 
 [default.local_start_lambda.parameters]
 warm_containers = "EAGER"
+
+[default.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+stack_name = "bank-transfer-default"
+s3_prefix = "bank-transfer-default"
+region = "us-east-2"
+disable_rollback = true
+parameter_overrides = ""  # Removed hardcoded overrides
+image_repositories = []
+
+[dev.deploy.parameters]
+stack_name = "bank-transfer-dev"
+s3_prefix = "bank-transfer-dev"
+region = "us-east-2"
+capabilities = "CAPABILITY_IAM"
+resolve_s3 = true
+confirm_changeset = true
+disable_rollback = true
+parameter_overrides = ""  # Removed hardcoded overrides
+
+[staging.deploy.parameters]
+stack_name = "bank-transfer-staging"
+s3_prefix = "bank-transfer-staging"
+region = "us-east-2"
+capabilities = "CAPABILITY_IAM"
+resolve_s3 = true
+confirm_changeset = true
+disable_rollback = true
+parameter_overrides = ""  # Removed hardcoded overrides
+
+[prod.deploy.parameters]
+stack_name = "bank-transfer-prod"
+s3_prefix = "bank-transfer-prod"
+region = "us-east-2"
+capabilities = "CAPABILITY_IAM"
+resolve_s3 = true
+confirm_changeset = true
+disable_rollback = true
+parameter_overrides = ""  # Removed hardcoded overrides

@@ -1,8 +1,4 @@
 {
-  "WalletHmacKey": "/prod/wallet/hmacKey",
-  "BASEURL": "/prod/wallet/BaseUrl",
-  "TransferRequeryQueueArn": "/prod/wallet/TransferRequeryQueueArn",
-  "TransferRequeryQueueUrl": "/prod/wallet/TransferRequeryQueueUrl",
-  "SubnetId": "/prod/lambda/SubnetId",
-  "SecurityGroupId": "/prod/lambda/SecurityGroupId"
+ "Environment": "prod",
+  "SecretArn": "arn:aws:secretsmanager:us-east-1:123456789012:secret:banktransfer/prod/secret"
 }
