@@ -1,4 +1,10 @@
-{
- "Environment": "prod",
-  "SecretArn": "arn:aws:secretsmanager:us-east-1:123456789012:secret:banktransfer/prod/secret"
-}
+[
+  {
+    "ParameterKey": "Environment",
+    "ParameterValue": "prod"
+  },
+  {
+    "ParameterKey": "SecretArn",
+    "ParameterValue": "arn:aws:secretsmanager:us-east-2:230572723571:secret:banktransfer/prod/secret"
+  }
+]

@@ -6,17 +6,5 @@
   {
     "ParameterKey": "SecretArn",
     "ParameterValue": "arn:aws:secretsmanager:us-east-2:230572723571:secret:banktransfer/dev/secret"
-  },
-  {
-    "ParameterKey": "SecurityGroupId",
-    "ParameterValue": "sg-056bb8daadd66a703"
-  },
-  {
-    "ParameterKey": "SubnetId",
-    "ParameterValue": "subnet-0f432fdc62fcde416"
-  },
-  {
-    "ParameterKey": "SqsQueueArn",
-    "ParameterValue": "arn:aws:sqs:us-east-2:230572723571:staging-transfer-queue"
   }
 ]

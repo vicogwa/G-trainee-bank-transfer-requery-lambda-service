@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   banktransfer-lambda-service
-  Fully refactored to use AWS Secrets Manager for all environment config
+  Fully refactored to pull all config from AWS Secrets Manager
 
 Globals:
   Function:
@@ -19,18 +19,10 @@ Parameters:
       - staging
       - prod
     Description: Deployment environment
+
   SecretArn:
     Type: String
     Description: ARN of the environment-specific Secrets Manager secret
-  SecurityGroupId:
-    Type: AWS::EC2::SecurityGroup::Id
-    Description: Security Group ID for Lambda VPC config
-  SubnetId:
-    Type: AWS::EC2::Subnet::Id
-    Description: Subnet ID for Lambda VPC config
-  SqsQueueArn:
-    Type: String
-    Description: ARN of an SQS queue for deployment-time validation
 
 Resources:
   TransferRequeryFunction:
@@ -46,16 +38,19 @@ Resources:
         SQSEvent:
           Type: SQS
           Properties:
-            Queue: !Ref SqsQueueArn
+            Queue: !Sub "{{resolve:secretsmanager:${SecretArn}:SecretString:TransferRequeryQueueArn}}"
       Environment:
         Variables:
-          SECRET_ID: !Ref SecretArn
           ENVIRONMENT: !Ref Environment
+          SECRET_ID: !Ref SecretArn
+          BASEURL: !Sub "{{resolve:secretsmanager:${SecretArn}:SecretString:BASEURL}}"
+          WalletHmacKey: !Sub "{{resolve:secretsmanager:${SecretArn}:SecretString:WalletHmacKey}}"
+          TransferRequeryQueueUrl: !Sub "{{resolve:secretsmanager:${SecretArn}:SecretString:TransferRequeryQueueUrl}}"
       VpcConfig:
         SecurityGroupIds:
-          - !Ref SecurityGroupId
+          - !Sub "{{resolve:secretsmanager:${SecretArn}:SecretString:SecurityGroupId}}"
         SubnetIds:
-          - !Ref SubnetId
+          - !Sub "{{resolve:secretsmanager:${SecretArn}:SecretString:SubnetId}}"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -85,10 +80,6 @@ Resources:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
-                  - sqs:SendMessage
-                  - sqs:GetQueueAttributes
-                  - sqs:ReceiveMessage
-                  - sqs:DeleteMessage
                 Resource: "*"
         - PolicyName: LambdaVpcPolicy
           PolicyDocument:
@@ -108,11 +99,22 @@ Resources:
                 Action:
                   - secretsmanager:GetSecretValue
                 Resource: !Ref SecretArn
+        - PolicyName: SQSPermissionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                Resource: !Sub "{{resolve:secretsmanager:${SecretArn}:SecretString:TransferRequeryQueueArn}}"
 
 Outputs:
   TransferRequeryFunction:
     Description: TransferRequery Service
     Value: !GetAtt TransferRequeryFunction.Arn
+
   TransferRequeryFunctionRole:
     Description: IAM Role for the TransferRequery function
     Value: !GetAtt TransferRequeryFunctionRole.Arn

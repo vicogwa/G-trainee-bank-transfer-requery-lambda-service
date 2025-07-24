@@ -12,7 +12,7 @@ parallel = true
 lint = true
 
 [default.package.parameters]
-resolve_s3 = true
+resolve_s3 = false
 
 [default.sync.parameters]
 watch = true
@@ -26,7 +26,7 @@ warm_containers = "EAGER"
 [default.deploy.parameters]
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
-resolve_s3 = true
+resolve_s3 = false
 stack_name = "bank-transfer-default"
 s3_prefix = "bank-transfer-default"
 region = "us-east-2"
@@ -39,7 +39,7 @@ stack_name = "bank-transfer-dev"
 s3_prefix = "bank-transfer-dev"
 region = "us-east-2"
 capabilities = "CAPABILITY_IAM"
-resolve_s3 = true
+resolve_s3 = false
 confirm_changeset = true
 disable_rollback = true
 parameter_overrides = ""  # Removed hardcoded overrides
@@ -49,7 +49,7 @@ stack_name = "bank-transfer-staging"
 s3_prefix = "bank-transfer-staging"
 region = "us-east-2"
 capabilities = "CAPABILITY_IAM"
-resolve_s3 = true
+resolve_s3 = false
 confirm_changeset = true
 disable_rollback = true
 parameter_overrides = ""  # Removed hardcoded overrides
@@ -59,7 +59,7 @@ stack_name = "bank-transfer-prod"
 s3_prefix = "bank-transfer-prod"
 region = "us-east-2"
 capabilities = "CAPABILITY_IAM"
-resolve_s3 = true
+resolve_s3 = false
 confirm_changeset = true
 disable_rollback = true
 parameter_overrides = ""  # Removed hardcoded overrides
